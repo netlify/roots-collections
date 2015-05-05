@@ -1,0 +1,17 @@
+{
+  "name": "roots-posts",
+  "version": "0.1.0",
+  "description": "Blog post collections in markdown with frontmatter for roots",
+  "main": "lib",
+  "keywords": [
+    "roots-extension",
+    "blogging",
+    "markdown",
+    "frontmatter"
+  ],
+  "author": "Mathias Biilmann Christensen",
+  "license": "MIT",
+  "devDependencies": {
+    "coffee-script": "^1.9.2"
+  }
+}
