@@ -80,7 +80,8 @@ module.exports = (options) ->
 
       results = []
       for post in @posts
-        adapter.render(content, opts).then (result) ->
-          output = path.join(ctx.roots.config.output_path(), post.file_options._path)
-          results.push(nodefn.call(fs.writeFile, output, result.result))
+        do (post) ->
+          adapter.render(content, opts).then (result) ->
+            output = path.join(ctx.roots.config.output_path(), post.file_options._path)
+            results.push(nodefn.call(fs.writeFile, output, result.result))
       w.all(results)
