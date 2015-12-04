@@ -35,10 +35,10 @@ module.exports = (options) ->
           f.originalContent = f.content
           extension.layoutFile = f
         else
-          locals = f.compile_options.posts ?= []
-          locals.push(extension.read_file(f))
-          locals.by_date = -> locals.filter (a,b) -> b.date - a.date
-          locals.by_title = -> locals.filter (a,b) -> a.title.localeCompare(b.title)
+          posts = extension.roots.config.locals.posts ||= []
+          posts.push(extension.read_file(f))
+          posts.by_date ||= -> posts.sort (a,b) -> b.date - a.date
+          posts.by_title ||= -> posts.sort (a,b) -> a.title.localeCompare(b.title)
 
       write: (ctx) ->
         false
