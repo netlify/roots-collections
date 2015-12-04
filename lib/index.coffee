@@ -12,7 +12,7 @@ module.exports = (options) ->
 
   class PostExtension
     constructor: (@roots) ->
-      @category = "post"
+      @category = "post_#{options.folder}"
       @posts = []
 
     frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/
@@ -73,7 +73,9 @@ module.exports = (options) ->
 
       _.extend(global_options, adapter_options, file_options, compile_options)
 
-    after_category: (ctx) ->
+    after_category: (ctx, category) ->
+      return unless category == @category
+
       adapter = @layoutFile.adapters[0]
       content = @layoutFile.originalContent
       opts = @configure_options(@layoutFile, adapter)
