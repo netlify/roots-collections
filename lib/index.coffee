@@ -16,6 +16,10 @@ decorateArray = (array) ->
     )
   array
 
+# The first time a layout is found it'll be marked as part of the category
+# Keep a cache of layoutFiles to make sure it can be used by other collections as well
+layoutFiles = {}
+
 module.exports = (options) ->
   options ||= {}
   folder = options.folder || "posts"
@@ -26,15 +30,17 @@ module.exports = (options) ->
       @category = "collection_#{options.folder}"
       @entries = []
       @roots.config.locals[helperName] = decorateArray([])
+      @layoutFilename = "views/#{options.layout}.jade"
 
     frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/
     slug_date_regexp: /^([0-9]{4})-(\d\d?)-(\d\d?)-/
 
     fs: ->
+      extension = @
       extract: true
       ordered: true
       detect: (f) ->
-        if "views/#{options.layout}.jade" == f.relative
+        if f.relative == extension.layoutFilename
           true
         else
           path.dirname(f.relative) == folder
@@ -44,9 +50,9 @@ module.exports = (options) ->
 
       before_pass: (ctx) ->
         f = ctx.file
-        if f.file.relative == "views/#{options.layout}.jade"
+        if f.file.relative == extension.layoutFilename
           f.originalContent = f.content
-          extension.layoutFile = f
+          layoutFiles[extension.layoutFilename] = extension.layoutFile = f
         else
           entries = extension.roots.config.locals[helperName]
           entries.push(extension.read_file(f))
@@ -90,6 +96,9 @@ module.exports = (options) ->
 
     after_category: (ctx, category) ->
       return unless category == @category
+
+      @layoutFile ||= layoutFiles[@layoutFilename]
+      throw("No layout #{@layoutFilename} found for #{category}") unless @layoutFile
 
       adapter = @layoutFile.adapters[0]
       content = @layoutFile.originalContent
