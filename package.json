@@ -3,6 +3,12 @@
   "version": "0.3.0",
   "description": "Content collections in markdown with frontmatter for Roots",
   "main": "lib",
+  "homepage": "https://github.com/netlify/roots-collections",
+  "repository":
+  {
+    "type" : "git",
+    "url" : "https://github.com/netlify/roots-collections.git"
+  },
   "keywords": [
     "roots-extension",
     "blogging",
