@@ -1,57 +1,93 @@
-# Roots Posts
+# Roots Collections
 
-Roots Posts adds blogging with Markdown and Frontmatter to [Roots](http://roots.cx/).
+Content Collections based on  Markdown with Frontmatter for the [Roots](http://roots.cx/) static site generator.
 
 ## Installation
 
 *  make sure you're in your roots project directory
-*  `npm install roots-posts --save`
+*  `npm install roots-collections --save`
 *  modify your `app.coffee` file to include the extension
 
    ```coffee
-   posts = require 'roots-posts'
+   collections = require 'roots-collections'
 
    module.exports =
-     extensions: [posts(folder: 'posts', layout: 'post')]
+     extensions: [collections(folder: 'posts', layout: 'post')]
    ```
 
 ## Usage
 
-Once you've configured the extension, Roots will search the specified folder for blog posts.
+Once you've installed the extension, Roots will search the specified folder for collections and make them available in your templates.
 
-Each file in that folder should be a Markdown file with a name following the pattern:
+Files in the folder should end with the extension `.md` and be written as markdown with YAML frontmatter:
+
+```
+---
+title: This is the title
+desc: A description
+----
+
+# I am markdown
+
+Hello
+```
+
+If the file names follow the following patter:
 
 ```
 /posts/2015-05-04-this-is-a-blog-post.md
 ```
 
-Each post will be rendered with the specified layout (in this case `views/post.jade`) and from the layout you can access a `post` variable with the title, date, body, and other metadata from the post.
+The extension will automatically add a `date` to the entries based on the date in the filename.
+
+If a `layout` is specified, each entry will be rendered with the specified layout. The layout template can access an `entry` variable with the title, date, slug, body, and other metadata from the entry.
 
 ```jade
 extends layout
 
 block content  
-  h3.post-title= post.title
-  .post-body!= post.body
+  h3.post-title= entry.title
+  .post-body!= entry.body
 ```
 
-## Post Listings
+## Entry Listings
 
+The name of the collection is based on the folder, unless you explicitly set a `name` when configuring the extension.
+
+So if you configure the extension with `posts(folder: 'posts')` you will be able to use `posts.orderBy('date','desc')` in templates. If you configure the extension with `posts(folder: 'docs')`, you'll be able to use `docs.orderBy('title')` in templates.
+
+The collection
 You can also list posts in any of your templates by using one of two build-in helper methods:
 
 * `posts.byTitle()` lists posts alphabetically by title
 * `posts.byDate()` lists posts by date in reverse chronological order
 
-The name of the collection is based on the folder. So if you configure the extension with `posts(folder: 'posts')` you will be able to use `posts.byDate()` in templates. If you configure the extension with `posts(folder: 'docs')`, you'll use `docs.byDate()` in templates.
+Example:
 
 ```jade
-.post-listing
-  each post in posts.byDate()
+.recent-posts-listing
+  each post in posts.orderBy('date', 'desc').slice(0, 10)
     h3.title
       a.post-title(href=post.permalink)= post.title
     .body!= post.body
 ```
 
+## Computed Entry Properties
+
+By default the collections extension will compute the `slug`, `permalink`,`date` and `body` properties based on the filename of each entry, but you can also hook into the compilation phase to add your own computed properties or modify any of the default properties, by passing a `prepare` function to the extension:
+
+Here's a simple example of adding an `upcased_title` property to each entry.
+
+```coffee
+module.exports =
+  extensions: [collections(
+    folder: 'posts',
+    layout: 'post',
+    prepare: (post) ->
+      post.upcased_title = post.title && post.title.toUpperCase()
+  )]
+```
+
 ## License
 
-This extension is published under the [MIT License](https://github.com/netlify/roots-posts/blob/master/LICENSE.md)
+This extension is published under the [MIT License](https://github.com/netlify/roots-collections/blob/master/LICENSE.md)

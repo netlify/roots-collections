@@ -7,8 +7,13 @@ nodefn       = require 'when/node/function'
 fs           = require 'fs'
 
 decorateArray = (array) ->
-  array.byDate = -> decorateArray(array.sort((a,b) -> b.date - a.date))
-  array.byTitle = -> decorateArray(array.sort((a,b) -> a.title - b.title))
+  array.orderBy = (property, direction) ->
+    decorateArray(
+      array.sort (a,b) ->
+        [a,b] = [b,a] if direction == 'desc'
+        [propA, propB] = [a[property], b[property]]
+        propA - propB
+    )
   array
 
 module.exports = (options) ->
@@ -16,13 +21,14 @@ module.exports = (options) ->
   folder = options.folder || "posts"
   helperName = options.name || folder
 
-  class PostExtension
+  class CollectionExtension
     constructor: (@roots) ->
-      @category = "post_#{options.folder}"
-      @posts = []
+      @category = "collection_#{options.folder}"
+      @entries = []
       @roots.config.locals[helperName] = decorateArray([])
 
     frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/
+    slug_date_regexp: /^([0-9]{4})-(\d\d?)-(\d\d?)-/
 
     fs: ->
       extract: true
@@ -42,8 +48,8 @@ module.exports = (options) ->
           f.originalContent = f.content
           extension.layoutFile = f
         else
-          posts = extension.roots.config.locals[helperName]
-          posts.push(extension.read_file(f))
+          entries = extension.roots.config.locals[helperName]
+          entries.push(extension.read_file(f))
 
       write: (ctx) ->
         false
@@ -58,17 +64,20 @@ module.exports = (options) ->
       obj.body = if match then (match[2] || "").replace(/^\n+/, '') else content
       obj.body = marked(obj.body)
 
-      name = path.basename(f.file_options.filename)
-      parts = name.split("-")
-      date = new Date("#{parts[0]}-#{parts[1]}-#{parts[2]}")
-      obj.date = date
+      obj.path = path.basename(f.file_options.filename)
+      obj.slug = obj.path.replace(/\..+?$/, '')
+      match = obj.slug.match(@slug_date_regexp)
+      if match
+        obj.date = new Date("#{match[1]}-#{match[2]}-#{match[3]}")
       obj.permalink = f.file_options._path
 
       obj.file_options = f.file_options
       obj.file = f
-      f.file_options.post = obj
+      options.prepare(obj) if options.prepare
 
-      @posts.push(obj)
+      f.file_options.entry = obj
+
+      @entries.push(obj)
       obj
 
     configure_options: (file, adapter) ->
@@ -87,9 +96,9 @@ module.exports = (options) ->
       opts = @configure_options(@layoutFile, adapter)
 
       results = []
-      for post in @posts
-        do (post) ->
-          adapter.render(content, _.extend(opts, {post: post})).then (result) ->
-            output = path.join(ctx.roots.config.output_path(), post.file_options._path)
+      for entry in @entries
+        do (entry) ->
+          adapter.render(content, _.extend(opts, {entry: entry})).then (result) ->
+            output = path.join(ctx.roots.config.output_path(), entry.permalink)
             results.push(nodefn.call(fs.writeFile, output, result.result))
       w.all(results)

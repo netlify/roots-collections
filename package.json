@@ -1,7 +1,7 @@
 {
-  "name": "roots-posts",
-  "version": "0.2.1",
-  "description": "Blog post collections in markdown with frontmatter for roots",
+  "name": "roots-collections",
+  "version": "0.3.0",
+  "description": "Content collections in markdown with frontmatter for Roots",
   "main": "lib",
   "keywords": [
     "roots-extension",
