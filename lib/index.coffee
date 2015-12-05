@@ -6,14 +6,21 @@ w            = require 'when'
 nodefn       = require 'when/node/function'
 fs           = require 'fs'
 
+decorateArray = (array) ->
+  array.byDate = -> decorateArray(array.sort((a,b) -> b.date - a.date))
+  array.byTitle = -> decorateArray(array.sort((a,b) -> a.title - b.title))
+  array
+
 module.exports = (options) ->
   options ||= {}
   folder = options.folder || "posts"
+  helperName = options.name || folder
 
   class PostExtension
     constructor: (@roots) ->
       @category = "post_#{options.folder}"
       @posts = []
+      @roots.config.locals[helperName] = decorateArray([])
 
     frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/
 
@@ -35,10 +42,8 @@ module.exports = (options) ->
           f.originalContent = f.content
           extension.layoutFile = f
         else
-          posts = extension.roots.config.locals.posts ||= []
+          posts = extension.roots.config.locals[helperName]
           posts.push(extension.read_file(f))
-          posts.by_date ||= -> posts.sort (a,b) -> b.date - a.date
-          posts.by_title ||= -> posts.sort (a,b) -> a.title.localeCompare(b.title)
 
       write: (ctx) ->
         false

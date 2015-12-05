@@ -39,12 +39,14 @@ block content
 
 You can also list posts in any of your templates by using one of two build-in helper methods:
 
-* `posts.by_title()` lists posts alphabetically by title
-* `posts.by_date()` lists posts by date in reverse chronological order
+* `posts.byTitle()` lists posts alphabetically by title
+* `posts.byDate()` lists posts by date in reverse chronological order
+
+The name of the collection is based on the folder. So if you configure the extension with `posts(folder: 'posts')` you will be able to use `posts.byDate()` in templates. If you configure the extension with `posts(folder: 'docs')`, you'll use `docs.byDate()` in templates.
 
 ```jade
 .post-listing
-  each post in posts.by_date()
+  each post in posts.byDate()
     h3.title
       a.post-title(href=post.permalink)= post.title
     .body!= post.body
