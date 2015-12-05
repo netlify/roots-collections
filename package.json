@@ -1,6 +1,6 @@
 {
   "name": "roots-posts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Blog post collections in markdown with frontmatter for roots",
   "main": "lib",
   "keywords": [

@@ -65,6 +65,7 @@ module.exports = (options) ->
       obj.permalink = f.file_options._path
 
       obj.file_options = f.file_options
+      obj.file = f
       f.file_options.post = obj
 
       @posts.push(obj)
@@ -88,7 +89,7 @@ module.exports = (options) ->
       results = []
       for post in @posts
         do (post) ->
-          adapter.render(content, opts).then (result) ->
+          adapter.render(content, _.extend(opts, {post: post})).then (result) ->
             output = path.join(ctx.roots.config.output_path(), post.file_options._path)
             results.push(nodefn.call(fs.writeFile, output, result.result))
       w.all(results)
