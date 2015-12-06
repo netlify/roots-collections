@@ -56,12 +56,6 @@ The name of the collection is based on the folder, unless you explicitly set a `
 
 So if you configure the extension with `posts(folder: 'posts')` you will be able to use `posts.orderBy('date','desc')` in templates. If you configure the extension with `posts(folder: 'docs')`, you'll be able to use `docs.orderBy('title')` in templates.
 
-The collection
-You can also list posts in any of your templates by using one of two build-in helper methods:
-
-* `posts.byTitle()` lists posts alphabetically by title
-* `posts.byDate()` lists posts by date in reverse chronological order
-
 Example:
 
 ```jade
