@@ -1,6 +1,6 @@
 {
   "name": "roots-collections",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Content collections in markdown with frontmatter for Roots",
   "main": "lib",
   "homepage": "https://github.com/netlify/roots-collections",

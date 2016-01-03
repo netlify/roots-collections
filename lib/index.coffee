@@ -29,10 +29,11 @@ module.exports = (options) ->
     constructor: (@roots) ->
       @category = "collection_#{options.folder}"
       @entries = []
+      @roots.config.locals ||= {}
       @roots.config.locals[helperName] = decorateArray([])
       @layoutFilename = "views/#{options.layout}.jade"
 
-    frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/
+    frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/m
     slug_date_regexp: /^([0-9]{4})-(\d\d?)-(\d\d?)-/
 
     fs: ->
@@ -67,7 +68,7 @@ module.exports = (options) ->
       match = f.content.match(@frontmatter_regexp);
 
       obj = if match then yaml.safeLoad(match[1]) else {}
-      obj.body = if match then (match[2] || "").replace(/^\n+/, '') else content
+      obj.body = if match then (match[2] || "").replace(/^\n+/, '') else f.content
       obj.body = marked(obj.body)
 
       obj.path = path.basename(f.file_options.filename)
