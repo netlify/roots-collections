@@ -25,7 +25,7 @@ Files in the folder should end with the extension `.md` and be written as markdo
 ---
 title: This is the title
 desc: A description
-----
+---
 
 # I am markdown
 
