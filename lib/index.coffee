@@ -31,7 +31,8 @@ module.exports = (options) ->
       @entries = []
       @roots.config.locals ||= {}
       @roots.config.locals[helperName] = decorateArray([])
-      @layoutFilename = "views/#{options.layout}.jade"
+      @layoutFilename = path.join("views", "#{options.layout}.jade")
+      console.log("Layout: ", @layoutFilename)
 
     frontmatter_regexp: /^---\n([^]*?)\n---\n([^]*)$/m
     slug_date_regexp: /^([0-9]{4})-(\d\d?)-(\d\d?)-/
