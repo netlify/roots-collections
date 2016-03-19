@@ -50,14 +50,17 @@ module.exports = (options) ->
     compile_hooks: ->
       extension = @
 
-      before_pass: (ctx) ->
+      before_file: (ctx) ->
         f = ctx.file
-        if f.file.relative == extension.layoutFilename
-          f.originalContent = f.content
-          layoutFiles[extension.layoutFilename] = extension.layoutFile = f
-        else
-          entries = extension.roots.config.locals[helperName]
-          entries.push(extension.read_file(f))
+        if f && f.relative == extension.layoutFilename
+          ctx.originalAdapter = ctx.adapters[0]
+          ctx.originalContent = ctx.content
+          ctx.adapters = []
+          layoutFiles[extension.layoutFilename] = extension.layoutFile = ctx
+
+      before_pass: (ctx) ->
+        entries = extension.roots.config.locals[helperName]
+        entries.push(extension.read_file(ctx.file))
 
       write: (ctx) ->
         false
@@ -102,7 +105,7 @@ module.exports = (options) ->
       @layoutFile ||= layoutFiles[@layoutFilename]
       throw("No layout #{@layoutFilename} found for #{category}") unless @layoutFile
 
-      adapter = @layoutFile.adapters[0]
+      adapter = @layoutFile.originalAdapter
       content = @layoutFile.originalContent
       opts = @configure_options(@layoutFile, adapter)
 
